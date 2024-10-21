@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Water Pipe Simulation</title>
+<style>
+  canvas {
+    border: 1px solid #000;
+  }
+</style>
+</head>
+<body>
+<canvas id="pipeCanvas" width="400" height="200"></canvas>
+<script type="text/javascript">
+    const canvas = document.getElementById('pipeCanvas');
+const ctx = canvas.getContext('2d');
+
+const pipe = {
+  x: 50,
+  y: 50,
+  width: 300,
+  height: 100,
+  waterLevel: 50,
+  waterSpeed: 2,
+  water: []
+};
+
+function drawPipe() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#76b852';
+  ctx.fillRect(pipe.x, pipe.y, pipe.width, pipe.height);
+  ctx.fillStyle = '#31708f';
+  ctx.fillRect(pipe.x, pipe.y + pipe.height - pipe.waterLevel, pipe.width, pipe.waterLevel);
+  ctx.fillStyle = '#fff';
+  pipe.water.forEach(drop => {
+    ctx.fillRect(drop.x, drop.y, 5, 5);
+  });
+}
+
+function updateWater() {
+  pipe.water = pipe.water.filter(drop => {
+    drop.x += pipe.waterSpeed;
+    return drop.x < canvas.width;
+  });
+  if (Math.random() < 0.02) { // Random chance to create a new drop
+    pipe.water.push({
+      x: pipe.x,
+      y: pipe.y + pipe.height - pipe.waterLevel - 5,
+    });
+  }
+}
+
+function animate() {
+  updateWater();
+  drawPipe();
+  requestAnimationFrame(animate);
+}
+
+animate();
+</script>
+</body>
+</html>

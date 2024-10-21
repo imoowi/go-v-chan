@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Water Pipe Animation</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="pipe">
+  <div class="water-drop"></div>
+</div>
+<button id="dropIn">Drop In</button>
+<button id="dropOut">Drop Out</button>
+<script type="text/javascript">
+    document.getElementById('dropIn').addEventListener('click', function() {
+  const waterDrop = document.querySelector('.water-drop');
+  waterDrop.style.bottom = '0';
+  waterDrop.style.animation = 'moveUp 5s infinite';
+});
+
+document.getElementById('dropOut').addEventListener('click', function() {
+  const waterDrop = document.querySelector('.water-drop');
+  waterDrop.style.animation = 'none';
+  setTimeout(() => {
+    waterDrop.style.bottom = '-300px';
+  }, 0);
+});
+</script>
+</body>
+<style>
+    .pipe {
+  width: 100px;
+  height: 300px;
+  background-color: #76b852;
+  position: relative;
+  overflow: hidden;
+  border-radius: 5px;
+}
+
+.water-drop {
+  width: 30px;
+  height: 30px;
+  background-color: #31708f;
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  animation: moveUp 5s infinite;
+}
+
+@keyframes moveUp {
+  0% {
+    bottom: 0;
+  }
+  100% {
+    bottom: -300px;
+  }
+}
+</style>
+</html>

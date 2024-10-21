@@ -1,0 +1,47 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>golang可视化通道</title>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <style>
+        .log-entry {
+            margin: 5px;
+            padding: 5px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <h1>a golang visualization channel</h1>
+    <div id="log-container"></div>
+    <script>
+        async function fetchLogs() {
+            const response = await fetch('http://localhost:8080/logs');
+            const text = await response.text();
+            return text.split('\n').filter(line => line.trim() !== '');
+        }
+
+        function renderLogs(logs) {
+            const container = d3.select('#log-container');
+            container.selectAll('.log-entry').remove();
+            logs.forEach(log => {
+                _log = JSON.parse(log)
+                console.log(_log)
+                container.append('div')
+                    .attr('class', 'log-entry')
+                    .text(_log.chName);
+            });
+        }
+
+        async function updateLogs() {
+            const logs = await fetchLogs();
+            renderLogs(logs);
+        }
+
+        setInterval(updateLogs, 1000);
+    </script>
+</body>
+</html>
