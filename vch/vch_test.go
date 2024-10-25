@@ -23,17 +23,9 @@ func TestVch(t *testing.T) {
 	// 	log.Fatal(err)
 	// }
 	// log.SetOutput(logFile)
-	InitLog(`runtime/log`)
+	InitLog(`../runtime/log`)
 	newCh := NewVChannel[*Student](chName, 1000)
 	newCh.Log()
-	for j := 0; j < 20; j++ {
-		student := &Student{
-			Name:   fmt.Sprintf(`q名字_%d_%d`, 1, j),
-			Class:  fmt.Sprintf(`q班级-%d-%d`, 1, j),
-			Degree: fmt.Sprintf(`q学位-%d-%d`, 1, j),
-		}
-		newCh.Push(chName, student)
-	}
 	newCh.SetCanLog(true)
 	time.Sleep(time.Second)
 	i := 0
