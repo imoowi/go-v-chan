@@ -1,9 +1,12 @@
-package vch
+package test
 
 import (
 	"fmt"
+	"log"
 	"testing"
 	"time"
+
+	"github.com/imoowi/go-v-chan/vch"
 )
 
 type Student struct {
@@ -14,20 +17,14 @@ type Student struct {
 }
 
 func TestVch(t *testing.T) {
-
-	chName := `可视化通道01`
-	// var logFile *os.File
-	// var err error
-	// logFile, err = os.OpenFile("channel_log.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// log.SetOutput(logFile)
-	InitLog(`../runtime/log`)
-	newCh := NewVChannel[*Student](chName, 1000)
-	newCh.Log()
-	newCh.SetCanLog(true)
-	time.Sleep(time.Second)
+	//初始化log日志
+	vch.InitLog(`../runtime/log`)
+	vch.CanLog = true
+	//定义通道名
+	chanName := `9527-大内密探零零狗`
+	//新建通道
+	vChanl := vch.NewVChannel[*Student](chanName, 1000)
+	// time.Sleep(time.Second)
 	i := 0
 	go func() {
 		for j := 0; j < 200; j++ {
@@ -36,7 +33,7 @@ func TestVch(t *testing.T) {
 				Class:  fmt.Sprintf(`班级-%d-%d`, i, j),
 				Degree: fmt.Sprintf(`学位-%d-%d`, i, j),
 			}
-			newCh.Push(chName, &student)
+			vChanl.Add(&student)
 			i++
 			// time.Sleep(time.Second * 1)
 		}
@@ -44,7 +41,8 @@ func TestVch(t *testing.T) {
 	time.Sleep(time.Microsecond)
 	go func() {
 		for i := 0; i < 100; i++ {
-			_ = newCh.Pull(chName)
+			_student := vChanl.Pop()
+			log.Println(_student)
 			// time.Sleep(time.Second * 1)
 		}
 	}()

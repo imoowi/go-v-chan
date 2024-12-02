@@ -10,6 +10,7 @@ import (
 )
 
 var MyLog *logrus.Entry
+var CanLog bool
 
 func init() {
 	MyLog = logrus.NewEntry(logrus.StandardLogger())

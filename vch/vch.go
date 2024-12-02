@@ -10,44 +10,37 @@ import (
 )
 
 type VChannel[T any] struct {
+	name     string
 	lock     *sync.RWMutex
 	ch       map[string]chan T
 	counter  map[string]*ChCounter
-	canlog   bool
-	chaction chan *ChAction[T]
+	chAction chan *ChAction[T]
 }
 
 // new a visualization channel
 func NewVChannel[T any](chName string, size int) *VChannel[T] {
 	newCh := &VChannel[T]{
+		name:     chName,
 		lock:     &sync.RWMutex{},
 		ch:       make(map[string]chan T),
 		counter:  make(map[string]*ChCounter),
-		chaction: make(chan *ChAction[T], 10000),
+		chAction: make(chan *ChAction[T], 10000),
 	}
 	newCh.ch[chName] = make(chan T, size)
 	newCh.counter[chName] = NewChCounter()
+	newCh.Log()
 	return newCh
 }
 
-// set log flag
-func (vc *VChannel[T]) SetCanLog(canlog bool) {
-	vc.canlog = canlog
-}
-
-// judge if can log
-func (vc *VChannel[T]) IsCanLog() bool {
-	return vc.canlog
-}
 func (vc *VChannel[T]) DoAction(action *ChAction[T]) {
 	action.ActionTime = time.Now()
-	vc.chaction <- action
+	vc.chAction <- action
 }
 func (vc *VChannel[T]) Log() {
 	go func() {
 		for {
-			if vc.canlog {
-				cell := <-vc.chaction
+			if CanLog {
+				cell := <-vc.chAction
 				sType := reflect.TypeOf(cell.Cell)
 				cell.CellType = fmt.Sprintf(`%v`, sType)
 				/*
@@ -70,37 +63,37 @@ func (vc *VChannel[T]) Log() {
 	}()
 }
 
-// push a cell into channel
-func (vc *VChannel[T]) Push(chName string, cell T) {
+// add a cell into channel
+func (vc *VChannel[T]) Add(cell T) {
 	vc.lock.Lock()
 	defer vc.lock.Unlock()
-	if _ch, ok := vc.ch[chName]; ok {
+	if _ch, ok := vc.ch[vc.name]; ok {
 		_ch <- cell
 		// counter++
-		vc.counter[chName].Incr()
+		vc.counter[vc.name].Incr()
 		action := &ChAction[T]{
 			ActionType: ActionTypeIn,
-			ChName:     chName,
-			ChCounter:  vc.counter[chName].ChCounter(),
+			ChName:     vc.name,
+			ChCounter:  vc.counter[vc.name].ChCounter(),
 			Cell:       cell,
 		}
 		vc.DoAction(action)
 	}
 }
 
-// pull a cell from channel
-func (vc *VChannel[T]) Pull(chName string) T {
+// pop a cell from channel
+func (vc *VChannel[T]) Pop() T {
 	vc.lock.RLock()
 	defer vc.lock.RUnlock()
 	var cell T
-	ch := vc.ch[chName]
+	ch := vc.ch[vc.name]
 	if cell, ok := <-ch; ok {
 		// counter--
-		vc.counter[chName].Decr()
+		vc.counter[vc.name].Decr()
 		action := &ChAction[T]{
 			ActionType: ActionTypeOut,
-			ChName:     chName,
-			ChCounter:  vc.counter[chName].ChCounter(),
+			ChName:     vc.name,
+			ChCounter:  vc.counter[vc.name].ChCounter(),
 			Cell:       cell,
 		}
 		vc.DoAction(action)
