@@ -6,6 +6,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/imoowi/comer/utils/maker"
 	"github.com/sirupsen/logrus"
 )
 
@@ -19,6 +20,9 @@ type VChannel[T any] struct {
 
 // new a visualization channel
 func NewVChannel[T any](chName string, size int) *VChannel[T] {
+	if chName == `` {
+		chName = maker.MakeSn(`vch_`)
+	}
 	newCh := &VChannel[T]{
 		name:     chName,
 		lock:     &sync.RWMutex{},
@@ -57,7 +61,7 @@ func (vc *VChannel[T]) Log() {
 					`obj`:     cell,
 				})
 				go Log.Info()
-				time.Sleep(time.Second * 1)
+				// time.Sleep(time.Second * 1)
 			}
 		}
 	}()
@@ -100,4 +104,7 @@ func (vc *VChannel[T]) Pop() T {
 		return cell
 	}
 	return cell
+}
+func (vc *VChannel[T]) Len() int {
+	return vc.counter[vc.name].ChCounter()
 }
